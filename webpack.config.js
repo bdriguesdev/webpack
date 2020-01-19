@@ -1,5 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const autoprefixer = require('autoprefixer');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: './src/index.js',
@@ -21,13 +24,31 @@ module.exports = {
                     }
                 }
             },
-            {                
-                test: [/.css$|.scss$/],                
-                use:[                    
-                 'style-loader',                  
-                 'css-loader',
-                 'sass-loader'
-                ]            
+            {   
+                test: [/.css$|.scss$/],   
+                use: [    
+                    MiniCssExtractPlugin.loader,    
+                    'css-loader',   
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            plugins: () => [autoprefixer()]
+                        }
+                    },
+                    'sass-loader'  
+                ]
+            },
+            {
+                test: /\.(png|jpg|gif|svg)$/,
+                use: [
+                    {
+                    loader: 'file-loader',
+                    options: {
+                        name: '[name].[ext]',
+                        outputPath: 'assets/images'
+                    }
+                    }
+                ]
             }
         ]
     },
@@ -40,6 +61,13 @@ module.exports = {
                 removeComments: true,
                 collapseWhitespace: false
             }
-        })
+        }),
+        new MiniCssExtractPlugin({
+            filename: 'style.css'
+        }),
+        new CopyWebpackPlugin([{     
+            from:'./src/assets/',      
+            to:'assets/'   
+        }])
     ]
 };
